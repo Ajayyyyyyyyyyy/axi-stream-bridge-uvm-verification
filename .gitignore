@@ -1,0 +1,32 @@
+# Cadence Xcelium / general EDA simulation artifacts
+xcelium.d/
+INCA_libs/
+*.shm/
+waves.shm/
+*.trn
+*.log
+*.history
+*.key
+*.diag
+.simvision/
+*.vcd
+*.fsdb
+*.wlf
+csrc/
+simv*
+*.vpd
+ucli.key
+DVEfiles/
+logs/
+results/
+
+# Editor / OS junk
+*.swp
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Python (if any auxiliary scripts are added later)
+__pycache__/
+*.pyc
