@@ -11,11 +11,6 @@ class test_cpl_write_readback extends base_test;
     super.new(name, parent);
   endfunction
 
-  function void build_phase(uvm_phase phase);
-    use_dma_env = 1'b0;
-    super.build_phase(phase);
-  endfunction
-
   task run_phase(uvm_phase phase);
     cpl_write_readback_seq seq;
     arb_responder_seq      arb_seq;

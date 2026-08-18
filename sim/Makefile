@@ -1,11 +1,14 @@
 #===============================================================================
 # StreamBridge UVM regression Makefile (Cadence Xcelium)
 #
+# This repo shows one complete completer-path vertical slice; the DUT
+# top-level and its requester/DMA-path counterpart are omitted (see README),
+# so this Makefile is illustrative of the real regression flow rather than
+# directly runnable as-is.
+#
 # Usage:
 #   make test TEST=test_cpl_write_readback
-#   make test TEST=test_dma_size_sweep VERBOSITY=UVM_HIGH SEED=12345
 #   make regress
-#   make waves TEST=test_dma_single_read
 #   make clean
 #===============================================================================
 
@@ -18,9 +21,7 @@ WAVES       ?= 0
 
 RTL_DIR     := ../src
 IF_FILE     := $(RTL_DIR)/env/stream_bridge_if.sv
-DUT_STUB    := $(RTL_DIR)/top/StreamBridge_stub.sv
 PKG_TOP     := $(RTL_DIR)/stream_bridge_pkg.sv
-TB_TOP      := $(RTL_DIR)/top/tb_top.sv
 
 XRUN_OPTS   := -uvm -access +rwc -sv -timescale 1ns/1ps \
                -incdir $(RTL_DIR)/env -incdir $(RTL_DIR)/agents \
@@ -37,23 +38,19 @@ $(LOG_DIR) $(RESULTS_DIR):
 	mkdir -p $@
 
 compile: | $(LOG_DIR)
-	$(SIMULATOR) -compile $(XRUN_OPTS) $(IF_FILE) $(DUT_STUB) $(PKG_TOP) $(TB_TOP) \
+	$(SIMULATOR) -compile $(XRUN_OPTS) $(IF_FILE) $(PKG_TOP) \
 		-l $(LOG_DIR)/compile.log
 
 test: | $(LOG_DIR) $(RESULTS_DIR)
-	$(SIMULATOR) $(XRUN_OPTS) $(IF_FILE) $(DUT_STUB) $(PKG_TOP) $(TB_TOP) \
+	$(SIMULATOR) $(XRUN_OPTS) $(IF_FILE) $(PKG_TOP) \
 		+UVM_TESTNAME=$(TEST) +UVM_VERBOSITY=$(VERBOSITY) \
 		$(if $(filter-out random,$(SEED)),-svseed $(SEED),-svseed random) \
 		$(if $(filter 1,$(WAVES)),+WAVES,) \
 		-l $(LOG_DIR)/$(TEST).log
 	@echo "---- $(TEST) complete, see $(LOG_DIR)/$(TEST).log ----"
 
-# Full focused-test suite: one make invocation per test.
-REGRESSION_TESTS := test_cpl_write_readback \
-                     test_cpl_continuous_burst \
-                     test_dma_single_read \
-                     test_dma_single_write \
-                     test_dma_size_sweep
+# Focused-test suite for the completer path shown in this repo.
+REGRESSION_TESTS := test_cpl_write_readback
 
 regress: | $(LOG_DIR) $(RESULTS_DIR)
 	@for t in $(REGRESSION_TESTS); do \
